@@ -53,15 +53,16 @@ data.std <- data.all[, grep("std()", colnames(data.all))]
 data.subject <- data.all[, 1]
 	
 # Factoring the activities and set levels
-data.activites <- factor(data.all$activity, labels = c("WALKING", "WALKING_UPSTAIRS", "WALKING_DOWNSTAIRS", "SITTING", "STANDING", "LAYING"))
+activityTbl <- read.table(paste(parentPath,"activity_labels.txt",sep = ""))
+data.activites <- factor(data.all$activity, labels=activityTbl$V2)
 data.wanted <- cbind(data.subject, data.activites, data.mean, data.std)
 
 # Set columns' names of subject and activity
 colnames(data.wanted)[1:2] <- c("subject", "activity")
 
 # Restructuring the wanted data 
-data.melted <- melt(data.wanted, id = c("subject", "activity"), na.rm = TRUE)
-data.tidy <- dcast(data.melted, formula = activity + subject ~ variable)
+data.melted <- melt(data.wanted, id = c("subject", "activity"), na.rm = TRUE,measure.vars = names(data.wanted)[3:81])
+data.tidy <- dcast(data.melted, formula = activity + subject ~ variable, mean)
 
 #writing the tidy data as txt
 write.table(data.tidy, file = "data_tidy.txt",row.names = FALSE)
